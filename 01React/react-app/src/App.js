@@ -100,10 +100,22 @@ function App() {
       }
     }
     content = <Article title={title} body={body}></Article>
-    contextControl = <li><a href={'/update/'+id} onClick={event=>{
-      event.preventDefault();
-      setMode('UPDATE');
-    }}>Update</a></li>
+    contextControl = <> 
+      <li><a href={'/update/'+id} onClick={event=>{
+        event.preventDefault();
+        setMode('UPDATE');
+      }}>Update</a></li>
+      <li><input type="button" value="Delete" onClick={()=>{
+        const newTopics = []
+        for (let i=0; i<topics.length; i++) {
+          if(topics[i].id !== id) {
+            newTopics.push(topics[i]); // id값이 일치하지 않는 데이터만 push
+          }
+        }
+        setTopics(newTopics);
+        setMode('WELCOME');
+      }}></input></li>
+    </> // 리액트에서 태그를 다룰 때에는 반드시 하나의 태그. 묶을 때 사용하는 빈 태그
   } else if (mode === 'CREATE') {
     content = <Create onCreate={(_title, _body)=>{
       const newTopic = {id:nextId, title:_title, body:_body}

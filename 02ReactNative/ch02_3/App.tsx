@@ -1,12 +1,13 @@
 import React from 'react'
-import { SafeAreaView, Text } from 'react-native'
-import * as D from './src/data'
+import { SafeAreaView } from 'react-native'
+import ClassComponent from './src/screens/ClassComponent'
+import ArrowComponent from './src/screens/ArrowComponent'
 
-const person = D.createRandomPerson()
 export default function App() {
   return (
     <SafeAreaView>
-      <Text>{JSON.stringify(person, null, 2)}</Text>
-    </SafeAreaView> //stringfy 함수를 이용하여 문자열로 변환
+      <ClassComponent />
+      <ArrowComponent />
+    </SafeAreaView>
   )
 }

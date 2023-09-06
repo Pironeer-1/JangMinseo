@@ -12,4 +12,4 @@ var app = http.createServer(function(request, response) {
     console.log(__dirname + url);
     response.end(fs.readFileSync(__dirname + url)); //웹 서버가 웹 브라우저가 요청한 파일을 읽어서 응답
 });
-app.listen(3000);
+app.listen(80);

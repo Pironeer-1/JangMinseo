@@ -61,7 +61,7 @@ var app = http.createServer(function(request, response) {
                         `<a href="/create">create</a>
                          <a href="/update?id=${title}">update</a>
                          <form action="delete_process" method="post" onsubmit="return confirm('정말로 삭제?');">
-                            <input type="hidden" name="id" value="&{title}">
+                            <input type="hidden" name="id" value="${title}">
                             <input type="submit" value="delete">
                         </form>`); // 삭제는 POST 방식으로!!!!! 삭제/수정이 진행될 때의 링크가 외부에 유출되면 보안 문제.
                     response.writeHead(200);
@@ -134,6 +134,19 @@ var app = http.createServer(function(request, response) {
                 response.writeHead(302, {Location: `/?id=${title}`});
                 response.end();
                 })
+            });
+        });
+    } else if (pathname === '/delete_process') {
+        var body = '';
+        request.on('data', function(data) {
+            body = body + data;
+        });
+        request.on('end', function() {
+            var post = qs.parse(body);
+            var id = post.id;
+            fs.unlink(`data/${id}`, function(error) {
+                response.writeHead(302, {Location: '/'});
+                response.end();
             });
         });
     } else {

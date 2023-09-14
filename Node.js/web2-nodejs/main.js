@@ -85,11 +85,13 @@ var app = http.createServer(function(request, response) {
         });
         request.on('end', function() {
             var post = qs.parse(body); // 빈 객체 출력. JSON.stringfy() 이런 식으로 하면 일반 객체.
-            console.log(post);
+            var title = post.title;
+            var description = post.description;
+            fs.writeFile(`data/${title}`, description, 'utf8', function(err) {
+                response.writeHead(302, {Location: `/?id=${title}`});
+                response.end('');
+            })
         }); // 약속
-
-        response.writeHead(200); // 응답 코드 (미리 정해둔 약속)
-        response.end('Success');
     } else {
         response.writeHead(404); // 응답 코드 (미리 정해둔 약속)
         response.end('Not found');

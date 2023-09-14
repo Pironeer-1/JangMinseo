@@ -36,7 +36,8 @@ var app = http.createServer(function(request, response) {
     var _url = request.url;
     var queryData = url.parse(_url, true).query;
     var pathname = url.parse(_url, true).pathname;
-    var title = queryData.id;
+    // var title = queryData.id;
+    // var description = queryData.description;
 
     // console.log(url.parse(_url, true));
 
@@ -55,7 +56,7 @@ var app = http.createServer(function(request, response) {
                 var list = templateList(filelist);
                 fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description) {
                     var title = queryData.id;
-                    var template = templateHTML(title, list, `<h2>${title}</h2><p>${description}</p>`, `<a href="/create">create</a> <a href=`/update?$id={title}`>update</a>`);
+                    var template = templateHTML(title, list, `<h2>${title}</h2><p>${description}</p>`, `<a href="/create">create</a> <a href="/update?id=${title}">update</a>`);
                     response.writeHead(200);
                     response.end(template);
                 });
@@ -65,7 +66,7 @@ var app = http.createServer(function(request, response) {
         fs.readdir('./data', function(error, filelist) {
             var title = 'WEB - create';
             var list = templateList(filelist);
-            var template = templateHTML(title, list, `<form action="http://localhost:3000/create_process" method="post">
+            var template = templateHTML(title, list, `<form action="/create_process" method="post">
             <p><input type="text" name="title" placeholder="title"></p>
             <p>
                 <textarea name="description" placeholder="description"></textarea>
@@ -93,7 +94,24 @@ var app = http.createServer(function(request, response) {
             })
         }); // 약속
     } else if (pathname === `/update`) {
-
+        fs.readdir('./data', function(err, filelist) {
+            fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description) {
+                var title = queryData.id;
+                var list = templateList(filelist);
+                var template = templateHTML(title, list, `<form action="/update_process" method="post">
+                        <input type="hidden" name="id" value="${title}">
+                        <p><input type="text" name="title" placeholder="title" value="${title}"></p>
+                        <p>
+                            <textarea name="description" placeholder="description">${description}</textarea>
+                        </p>
+                        <p>
+                            <input type="submit" >
+                        </p>
+                    </form>`, `<a href="/create">create</a> <a href="/update?id=${title}">update</a>`);
+                response.writeHead(200);
+                response.end(template);
+            });
+        });
     } else {
         response.writeHead(404); // 응답 코드 (미리 정해둔 약속)
         response.end('Not found');

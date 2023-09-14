@@ -4,44 +4,12 @@ var url = require('url'); // Node.js한테 url이라는 모듈이 필요해!!!!!
 var qs = require('querystring');
 var template = require('./lib/template.js');
 var path = require('path');
-
-// function templateHTML(title, list, body, control) {
-//     return `
-//     <!doctype html>
-//     <html>
-//         <head>
-//             <title>WEB1 - ${title}</title>
-//             <meta charset="utf-8">
-//         </head>
-//         <body>
-//              <h1><a href="/">WEB</a></h1>
-//             ${list}
-//             ${control}
-//             ${body}
-//         </body>
-//     </html>
-//     `; // 얘는 HTML 코드
-// }
-
-// function templateList(filelist) {
-//     var list = '<ul>';
-//     var i = 0;
-//     while(i < filelist.length) {
-//         list = list + `<li><a href="/?id=${filelist[i]}">${filelist[i]}</a></li>`;
-//         i = i + 1;
-//     }
-//     list = list + '</ul>'
-//     return list;
-// }
+var sanitizeHtml = require('sanitize-html');
 
 var app = http.createServer(function(request, response) {
     var _url = request.url;
     var queryData = url.parse(_url, true).query;
     var pathname = url.parse(_url, true).pathname;
-    // var title = queryData.id;
-    // var description = queryData.description;
-
-    // console.log(url.parse(_url, true));
 
     if (pathname === '/') {
         if (queryData.id === undefined) {
@@ -56,15 +24,17 @@ var app = http.createServer(function(request, response) {
         } else {
             fs.readdir('./data', function(error, filelist) {
                 var list = template.list(filelist);
-                var filteredId = path.parse('queryData.id').base; // base만 사용함으로써 사용자가 요청한 정보를 정제!
+                var filteredId = path.parse(queryData.id).base; // base만 사용함으로써 사용자가 요청한 정보를 정제!
                 fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
                     var title = queryData.id;
-                    var html = template.HTML(title, list, 
-                        `<h2>${title}</h2><p>${description}</p>`,
+                    var sanitizedTitle = sanitizeHtml(title);
+                    var sanitizedDescription = sanitizeHtml(description);
+                    var html = template.HTML(sanitizedTitle, list, 
+                        `<h2>${sanitizedTitle}</h2><p>${sanitizedDescription}</p>`,
                         `<a href="/create">create</a>
-                         <a href="/update?id=${title}">update</a>
+                         <a href="/update?id=${sanitizedTitle}">update</a>
                          <form action="delete_process" method="post" onsubmit="return confirm('정말로 삭제?');">
-                            <input type="hidden" name="id" value="${title}">
+                            <input type="hidden" name="id" value="${sanitizedTitle}">
                             <input type="submit" value="delete">
                         </form>`); // 삭제는 POST 방식으로!!!!! 삭제/수정이 진행될 때의 링크가 외부에 유출되면 보안 문제.
                     response.writeHead(200);
@@ -105,7 +75,7 @@ var app = http.createServer(function(request, response) {
         }); // 약속
     } else if (pathname === '/update') {
         fs.readdir('./data', function(err, filelist) {
-            var filteredId = path.parse('queryData.id').base;
+            var filteredId = path.parse(queryData.id).base;
             fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
                 var title = queryData.id;
                 var list = template.list(filelist);
@@ -148,7 +118,7 @@ var app = http.createServer(function(request, response) {
         request.on('end', function() {
             var post = qs.parse(body);
             var id = post.id;
-            var filteredId = path.parse('id').base;
+            var filteredId = path.parse(id).base;
             fs.unlink(`data/${filteredId}`, function(error) {
                 response.writeHead(302, {Location: '/'});
                 response.end();

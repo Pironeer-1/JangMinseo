@@ -3,7 +3,7 @@ var fs = require('fs');
 var url = require('url'); // Node.js한테 url이라는 모듈이 필요해!!!!!!!!!!!
 var qs = require('querystring');
 
-function templateHTML(title, list, body) {
+function templateHTML(title, list, body, control) {
     return `
     <!doctype html>
     <html>
@@ -14,7 +14,7 @@ function templateHTML(title, list, body) {
         <body>
              <h1><a href="/">WEB</a></h1>
             ${list}
-            <a href="/create">create</a>
+            ${control}
             ${body}
         </body>
     </html>
@@ -46,7 +46,7 @@ var app = http.createServer(function(request, response) {
                 var title = 'Welcome !';
                 var description = 'Hello, Node.js';
                 var list = templateList(filelist);
-                var template = templateHTML(title, list, `<h2>${title}</h2><p>${description}</p>`);
+                var template = templateHTML(title, list, `<h2>${title}</h2><p>${description}</p>`, `<a href="/create">create</a>`);
                 response.writeHead(200);
                 response.end(template); //웹 서버가 웹 브라우저가 요청한 파일을 읽어서 응답
             })
@@ -55,7 +55,7 @@ var app = http.createServer(function(request, response) {
                 var list = templateList(filelist);
                 fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description) {
                     var title = queryData.id;
-                    var template = templateHTML(title, list, `<h2>${title}</h2><p>${description}</p>`);
+                    var template = templateHTML(title, list, `<h2>${title}</h2><p>${description}</p>`, `<a href="/create">create</a> <a href=`/update?$id={title}`>update</a>`);
                     response.writeHead(200);
                     response.end(template);
                 });
@@ -73,7 +73,7 @@ var app = http.createServer(function(request, response) {
             <p>
                 <input type="submit" >
             </p>
-        </form>`);
+        </form>`, '');
             response.writeHead(200);
             response.end(template); //웹 서버가 웹 브라우저가 요청한 파일을 읽어서 응답
         })
@@ -92,6 +92,8 @@ var app = http.createServer(function(request, response) {
                 response.end('');
             })
         }); // 약속
+    } else if (pathname === `/update`) {
+
     } else {
         response.writeHead(404); // 응답 코드 (미리 정해둔 약속)
         response.end('Not found');

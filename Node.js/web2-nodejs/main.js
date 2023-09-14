@@ -11,8 +11,9 @@ function templateHTML(title, list, body) {
             <meta charset="utf-8">
         </head>
         <body>
-             <h1><a href="/">pm2 test~.~</a></h1>
+             <h1><a href="/">WEB</a></h1>
             ${list}
+            <a href="/create">create</a>
             ${body}
         </body>
     </html>
@@ -59,6 +60,22 @@ var app = http.createServer(function(request, response) {
                 });
             });
         }
+    } else if (pathname === '/create') {
+        fs.readdir('./data', function(error, filelist) {
+            var title = 'WEB - create';
+            var list = templateList(filelist);
+            var template = templateHTML(title, list, `<form action="http://localhost:3000/create_process" method="post">
+            <p><input type="text" placeholder="title"></p>
+            <p>
+                <textarea placeholder="description"></textarea>
+            </p>
+            <p>
+                <input type="submit" >
+            </p>
+        </form>`);
+            response.writeHead(200);
+            response.end(template); //웹 서버가 웹 브라우저가 요청한 파일을 읽어서 응답
+        })
     } else {
         response.writeHead(404); // 응답 코드 (미리 정해둔 약속)
         response.end('Not found');

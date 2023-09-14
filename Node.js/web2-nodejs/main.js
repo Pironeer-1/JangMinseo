@@ -1,6 +1,7 @@
 var http = require('http');
 var fs = require('fs');
 var url = require('url'); // Node.js한테 url이라는 모듈이 필요해!!!!!!!!!!!
+var qs = require('querystring');
 
 function templateHTML(title, list, body) {
     return `
@@ -65,9 +66,9 @@ var app = http.createServer(function(request, response) {
             var title = 'WEB - create';
             var list = templateList(filelist);
             var template = templateHTML(title, list, `<form action="http://localhost:3000/create_process" method="post">
-            <p><input type="text" placeholder="title"></p>
+            <p><input type="text" name="title" placeholder="title"></p>
             <p>
-                <textarea placeholder="description"></textarea>
+                <textarea name="description" placeholder="description"></textarea>
             </p>
             <p>
                 <input type="submit" >
@@ -76,6 +77,19 @@ var app = http.createServer(function(request, response) {
             response.writeHead(200);
             response.end(template); //웹 서버가 웹 브라우저가 요청한 파일을 읽어서 응답
         })
+    } else if (pathname === '/create_process') {
+        var body = '';
+        // 서버가 데이터를 수신할 때 조각조각 나눠서 수신하는데, 수신할 때마다 여기에 지정된 이벤트가 실행됨.
+        request.on('data', function(data) {
+            body = body + data;
+        });
+        request.on('end', function() {
+            var post = qs.parse(body); // 빈 객체 출력. JSON.stringfy() 이런 식으로 하면 일반 객체.
+            console.log(post);
+        }); // 약속
+
+        response.writeHead(200); // 응답 코드 (미리 정해둔 약속)
+        response.end('Success');
     } else {
         response.writeHead(404); // 응답 코드 (미리 정해둔 약속)
         response.end('Not found');

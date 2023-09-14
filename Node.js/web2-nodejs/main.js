@@ -3,6 +3,7 @@ var fs = require('fs');
 var url = require('url'); // Node.js한테 url이라는 모듈이 필요해!!!!!!!!!!!
 var qs = require('querystring');
 var template = require('./lib/template.js');
+var path = require('path');
 
 // function templateHTML(title, list, body, control) {
 //     return `
@@ -55,7 +56,8 @@ var app = http.createServer(function(request, response) {
         } else {
             fs.readdir('./data', function(error, filelist) {
                 var list = template.list(filelist);
-                fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description) {
+                var filteredId = path.parse('queryData.id').base; // base만 사용함으로써 사용자가 요청한 정보를 정제!
+                fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
                     var title = queryData.id;
                     var html = template.HTML(title, list, 
                         `<h2>${title}</h2><p>${description}</p>`,
@@ -103,7 +105,8 @@ var app = http.createServer(function(request, response) {
         }); // 약속
     } else if (pathname === '/update') {
         fs.readdir('./data', function(err, filelist) {
-            fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description) {
+            var filteredId = path.parse('queryData.id').base;
+            fs.readFile(`data/${filteredId}`, 'utf8', function(err, description) {
                 var title = queryData.id;
                 var list = template.list(filelist);
                 var html = template.HTML(title, list, `<form action="/update_process" method="post">
@@ -145,7 +148,8 @@ var app = http.createServer(function(request, response) {
         request.on('end', function() {
             var post = qs.parse(body);
             var id = post.id;
-            fs.unlink(`data/${id}`, function(error) {
+            var filteredId = path.parse('id').base;
+            fs.unlink(`data/${filteredId}`, function(error) {
                 response.writeHead(302, {Location: '/'});
                 response.end();
             });

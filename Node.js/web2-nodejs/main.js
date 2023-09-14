@@ -56,7 +56,14 @@ var app = http.createServer(function(request, response) {
                 var list = templateList(filelist);
                 fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description) {
                     var title = queryData.id;
-                    var template = templateHTML(title, list, `<h2>${title}</h2><p>${description}</p>`, `<a href="/create">create</a> <a href="/update?id=${title}">update</a>`);
+                    var template = templateHTML(title, list, 
+                        `<h2>${title}</h2><p>${description}</p>`,
+                        `<a href="/create">create</a>
+                         <a href="/update?id=${title}">update</a>
+                         <form action="delete_process" method="post" onsubmit="return confirm('정말로 삭제?');">
+                            <input type="hidden" name="id" value="&{title}">
+                            <input type="submit" value="delete">
+                        </form>`); // 삭제는 POST 방식으로!!!!! 삭제/수정이 진행될 때의 링크가 외부에 유출되면 보안 문제.
                     response.writeHead(200);
                     response.end(template);
                 });

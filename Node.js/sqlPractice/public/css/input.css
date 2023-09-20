@@ -1,0 +1,7 @@
+.input-text, input-content {
+    display: block;
+    margin: 1rem;
+}
+.input-text {
+    margin-left: -0.03rem;
+}
